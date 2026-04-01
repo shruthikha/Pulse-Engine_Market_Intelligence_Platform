@@ -382,6 +382,7 @@ def _maybe_trigger_scan() -> None:
         return  # scan already running
 
     state["last_started"] = now
+    state["running"]      = True   # set before start so UI reflects it on the very next rerun
     t = threading.Thread(
         target=_run_background_scan,
         daemon=True,
@@ -472,6 +473,7 @@ if st.sidebar.button(
 ):
     if not _scan_state["running"] and _scan_state["lock"].acquire(blocking=False):
         _scan_state["last_started"] = time.time()
+        _scan_state["running"]      = True   # mark before start so button disables on next rerun
         threading.Thread(
             target=_run_background_scan,
             daemon=True,
@@ -564,15 +566,6 @@ signal      = compute_signal_score(
 explanation = build_explanation(
     selected_asset, metrics, news, market_ctx, momentum, signal
 )
-
-# save snapshot for the currently viewed asset. remember this moment. treasure it
-# (it will be deleted in 60 days but still)
-if STORAGE_AVAILABLE:
-    try:
-        from storage import save_snapshot as _dash_save
-        _dash_save(selected_asset, metrics, momentum, signal, news[:5])
-    except Exception:  # intentional broad catch — storage errors must not crash the dashboard
-        pass
 
 #  SECTION 1 — Signal (prominent, top of page)
 
@@ -901,7 +894,7 @@ fig.update_layout(
     ),
     hovermode="x unified",
 )
-st.plotly_chart(fig, width="stretch")
+st.plotly_chart(fig, use_container_width=True)
 
 with st.expander("Volume chart"):
     if "Volume" in history.columns:
@@ -921,7 +914,7 @@ with st.expander("Volume chart"):
             xaxis=dict(showgrid=False, color="#8892a0"),
             yaxis=dict(showgrid=False, color="#8892a0"),
         )
-        st.plotly_chart(vfig, width="stretch")
+        st.plotly_chart(vfig, use_container_width=True)
     else:
         st.info("Volume data not available.")
 
@@ -956,7 +949,7 @@ with st.expander("Signal component breakdown"):
             ),
         )
         cfig.add_hline(y=0, line_color="#8892a0", line_width=1)
-        st.plotly_chart(cfig, width="stretch")
+        st.plotly_chart(cfig, use_container_width=True)
         if signal.get("category"):
             st.caption(
                 f"Per-class weights applied for {signal['category']}. "
@@ -1032,7 +1025,7 @@ if BACKTEST_AVAILABLE:
                     lambda v: "color:#00e676" if v == "Yes" else "color:#ff5252" if v == "No" else "",
                     subset=["Correct"],
                 )
-                st.dataframe(bt_styled, width="stretch", hide_index=True)
+                st.dataframe(bt_styled, use_container_width=True, hide_index=True)
 
 
 
@@ -1138,7 +1131,7 @@ hm_fig.update_layout(
     yaxis=dict(color="#8892a0", showgrid=False),
     font=dict(size=10, color="#c8d6e5"),
 )
-st.plotly_chart(hm_fig, width="stretch")
+st.plotly_chart(hm_fig, use_container_width=True)
 st.caption("Clipped at +/- 5%. Cells with no data show 0%.")
 
 
@@ -1199,7 +1192,7 @@ if rows:
         .map(_color_pct, subset=["24h %", "7d %", "10d ROC"])
         .map(_color_rsi, subset=["RSI"])
     )
-    st.dataframe(styled, width="stretch", hide_index=True)
+    st.dataframe(styled, use_container_width=True, hide_index=True)
 else:
     st.info("No data available for this category.")
 
