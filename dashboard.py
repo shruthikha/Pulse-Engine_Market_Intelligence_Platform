@@ -894,7 +894,7 @@ fig.update_layout(
     ),
     hovermode="x unified",
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 with st.expander("Volume chart"):
     if "Volume" in history.columns:
@@ -914,7 +914,7 @@ with st.expander("Volume chart"):
             xaxis=dict(showgrid=False, color="#8892a0"),
             yaxis=dict(showgrid=False, color="#8892a0"),
         )
-        st.plotly_chart(vfig, use_container_width=True)
+        st.plotly_chart(vfig, width="stretch")
     else:
         st.info("Volume data not available.")
 
@@ -949,7 +949,7 @@ with st.expander("Signal component breakdown"):
             ),
         )
         cfig.add_hline(y=0, line_color="#8892a0", line_width=1)
-        st.plotly_chart(cfig, use_container_width=True)
+        st.plotly_chart(cfig, width="stretch")
         if signal.get("category"):
             st.caption(
                 f"Per-class weights applied for {signal['category']}. "
@@ -1025,7 +1025,7 @@ if BACKTEST_AVAILABLE:
                     lambda v: "color:#00e676" if v == "Yes" else "color:#ff5252" if v == "No" else "",
                     subset=["Correct"],
                 )
-                st.dataframe(bt_styled, use_container_width=True, hide_index=True)
+                st.dataframe(bt_styled, width="stretch", hide_index=True)
 
 
 
@@ -1131,7 +1131,7 @@ hm_fig.update_layout(
     yaxis=dict(color="#8892a0", showgrid=False),
     font=dict(size=10, color="#c8d6e5"),
 )
-st.plotly_chart(hm_fig, use_container_width=True)
+st.plotly_chart(hm_fig, width="stretch")
 st.caption("Clipped at +/- 5%. Cells with no data show 0%.")
 
 
@@ -1192,7 +1192,7 @@ if rows:
         .map(_color_pct, subset=["24h %", "7d %", "10d ROC"])
         .map(_color_rsi, subset=["RSI"])
     )
-    st.dataframe(styled, use_container_width=True, hide_index=True)
+    st.dataframe(styled, width="stretch", hide_index=True)
 else:
     st.info("No data available for this category.")
 
