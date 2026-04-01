@@ -1387,6 +1387,7 @@ def analyse_asset(
     category: str,
     articles: list[dict],
     with_market_ctx: bool = False,
+    save: bool = False,
 ) -> dict:
     """Full analysis pipeline for a single asset."""
     log.info("Analysing %s (%s)", asset_name, ticker)
@@ -1405,8 +1406,8 @@ def analyse_asset(
         asset_name, metrics, news, market_ctx, momentum, signal
     )
 
-    # Persist lightweight snapshot (fails silently)
-    if STORAGE_AVAILABLE:
+    # only the batch pipeline should persist snapshots — dashboard stays read-only
+    if save and STORAGE_AVAILABLE:
         try:
             _save_snapshot(asset_name, metrics, momentum, signal, news[:5])
         except Exception as exc:
@@ -1533,4 +1534,5 @@ if __name__ == "__main__":
     print()
     print(result["explanation"]["detail"][:800])
 
-# coffee tracker cups now empty 7 -> 8
+
+# coffee tracker cups now empty 10 -> 11
