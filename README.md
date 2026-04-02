@@ -344,7 +344,8 @@ market-intelligence-platform/
 | [Docs/code_flow.md](Docs/code_flow.md) | Step-by-step execution flow for every pipeline with Mermaid diagrams |
 | [Docs/variable_list.md](Docs/variable_list.md) | Complete reference of all variables, constants, and return structures |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to report issues, propose changes, and submit pull requests |
-| [DISCLAIMER.md](DISCLAIMER.md) | Financial, legal, and data accuracy disclaimers |
+| [DISCLAIMER.md](Docs/DISCLAIMER.md) | Financial, legal, and data accuracy disclaimers |
+| [CHANGELOG.md](Docs/CHANGELOG.md) | Financial, legal, and data accuracy disclaimers |
 
 ---
 
@@ -359,7 +360,7 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 
 ## Disclaimer
 
-This software is provided for informational and educational purposes only. It does not constitute financial advice, investment advice, trading advice, or any other form of advice. See [DISCLAIMER.md](DISCLAIMER.md) for the full disclaimer.
+This software is provided for informational and educational purposes only. It does not constitute financial advice, investment advice, trading advice, or any other form of advice. See [DISCLAIMER.md](Docs/DISCLAIMER.md) for the full disclaimer.
 
 ---
 
