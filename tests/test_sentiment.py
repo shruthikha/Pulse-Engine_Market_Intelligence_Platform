@@ -1,4 +1,5 @@
 """
+THIS TEST FOLDER IS AI GENERATED AND A PLACEHOLDER. IT WILL BE IMPROVED AND IMPLEMENTED AS IT GOES ON MANUALLY
 test_sentiment.py — Contract tests for score_sentiment() and _fallback_sentiment().
 
 Both the VADER path and the keyword-fallback path are tested.
