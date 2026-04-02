@@ -1,5 +1,6 @@
 # Test Suite Maintenance Guide
 
+THIS TEST FOLDER IS AI GENERATED AND A PLACEHOLDER. IT WILL BE IMPROVED AND IMPLEMENTED AS IT GOES ON MANUALLY.
 This table tells future contributors exactly which tests are structural
 (safe under churn) and which are fragile (require care on specific changes).
 
