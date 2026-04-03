@@ -4,7 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [Unreleased]
+## [0.1.1] — 2026-04-03
+
+### Added
+- Minimal `pytest` test suite (`tests/test_core.py`, `tests/test_pipeline.py`) — 14 tests covering core function invariants and pipeline smoke tests
+- `requirements-dev.txt` for test dependencies (`pytest`, `pytest-mock`)
+- `tests/MAINTENANCE.md` — guide for when and how to update the test suite
+
+### Changed
+- `tests/conftest.py` rewritten — removed import facade and future-proofing logic; now contains only fixtures and shared setup
+- `pytest.ini` simplified — removed stale `hyper` marker and filter
+- `CONTRIBUTING.md` — Testing section updated to reflect the live pytest suite; dev setup now includes `requirements-dev.txt` install step; "Automated tests" removed from open contribution areas and replaced with "Test suite expansion"
+- `README.md` — Project Structure updated to include `tests/` directory and `requirements-dev.txt`
+
+### Removed
+- 9 over-engineered placeholder test files (`test_backtest.py`, `test_dedup_and_clustering.py`, `test_hyper.py`, `test_integration.py`, `test_momentum.py`, `test_price_metrics.py`, `test_sentiment.py`, `test_signal_score.py`, `test_storage.py`)
+- Unused dependencies from `requirements.txt`: `beautifulsoup4`, `soupsieve`, `GitPython`, `gitdb`, `smmap`, `peewee`
+- Dev dependencies duplicated at the bottom of `requirements.txt` (`freezegun`, `pytest`, `pytest-mock`)
+- `freezegun` from `requirements-dev.txt` — no tests use time-freezing
 
 ## [0.1.0] — 2026-04-02
 
