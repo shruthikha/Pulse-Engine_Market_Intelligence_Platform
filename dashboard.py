@@ -683,9 +683,11 @@ if snap:
         v7 = snap.get("change_7d")
         st.metric("7-Day", f"{v7:+.2f}%" if v7 is not None else "N/A")
     with mc3:
-        st.metric("30-Day", "—")
+        v30 = snap.get("change_30d")
+        st.metric("30-Day", f"{v30:+.2f}%" if v30 is not None else "N/A")
     with mc4:
-        st.metric("Volatility", "—")
+        vol = snap.get("volatility")
+        st.metric("Volatility", f"{vol:.2f}%" if vol is not None else "N/A")
     with mc5:
         trend = snap.get("trend") or "sideways"
         st.metric("Trend", trend.title())
@@ -699,9 +701,11 @@ if snap:
     with m2:
         st.metric("10-day ROC", f"{roc:+.2f}%")
     with m3:
-        st.metric("Trend Strength", "—")
+        ts = snap.get("trend_strength")
+        st.metric("Trend Strength", f"{ts:+.2f}%" if ts is not None else "N/A", help="MA7 vs MA30 divergence")
     with m4:
-        st.metric("Momentum Accel", "—")
+        ma = snap.get("momentum_accel")
+        st.metric("Momentum Accel", f"{ma:+.2f}%" if ma is not None else "N/A", help="Recent 5d ROC minus prior 5d ROC")
 else:
     st.info("Run a full scan to populate metric data.")
 
