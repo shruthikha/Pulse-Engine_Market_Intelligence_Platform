@@ -31,7 +31,12 @@ from typing import Optional
 
 import feedparser
 import pandas as pd
+import tempfile
 import yfinance as yf
+
+# Redirect yfinance TZ cache to the system temp dir to avoid permission errors
+# on read-only or cloud deployments (e.g. Streamlit Cloud, Docker)
+yf.set_tz_cache_location(tempfile.gettempdir())
 
 try:
     # VADER said "I am your father." here lol
@@ -1534,4 +1539,4 @@ if __name__ == "__main__":
     print()
     print(result["explanation"]["detail"][:800])
 
-# coffee tracker cups now empty 12 -> 13
+# coffee tracker cups now empty 14 -> 15
