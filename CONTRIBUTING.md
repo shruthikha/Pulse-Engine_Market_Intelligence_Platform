@@ -111,8 +111,12 @@ source .venv/bin/activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
-# 4. Verify the pipeline works
+# 4. Run the test suite
+pytest
+
+# 5. Verify the pipeline works
 python scan.py --dry-run
 
 # 5. Run the dashboard
@@ -149,7 +153,22 @@ All code must follow PEP 8. Key conventions used in this codebase:
 
 ## Testing
 
-There is no automated test suite at present. Before submitting a pull request, verify the following manually:
+The project has a `pytest` test suite. Install dev dependencies and run it before submitting a pull request:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+All 14 tests should pass. The suite covers:
+- Core function invariants (RSI range, signal score range, sentiment range)
+- Pipeline smoke tests (`analyse_asset`, `run_full_scan`)
+
+The tests are intentionally minimal — they verify the pipeline runs and outputs are sane,
+not that every key and value matches exactly. See `tests/MAINTENANCE.md` for guidance on
+when and how to update tests.
+
+In addition to the automated tests, verify the following manually before submitting:
 
 1. **Dry run passes without errors**
    ```bash
@@ -197,7 +216,7 @@ The following areas are particularly welcome for contribution:
 |---|---|
 | Additional assets | New tickers can be added to `TRACKED_ASSETS` in `config.py` along with keywords in `ASSET_KEYWORDS` and peers in `SECTOR_PEERS` |
 | Additional news feeds | New RSS feeds can be added to `NEWS_FEEDS` in `config.py` with a corresponding entry in `SOURCE_WEIGHTS` |
-| Automated tests | A `pytest` test suite covering `compute_price_metrics`, `compute_signal_score`, `save_snapshot`, and `run_scan` |
+| Test suite expansion | The current suite is intentionally minimal (14 tests). As the codebase stabilises, contributions that add meaningful invariant or integration tests are welcome — see `tests/MAINTENANCE.md` for what makes a good test here |
 | Export functionality | CSV or Excel export of the category overview table |
 | Alert system | Email or webhook notification when a signal crosses a configurable threshold |
 | Improved deduplication | Replace Jaccard similarity with a more robust semantic deduplication approach |
