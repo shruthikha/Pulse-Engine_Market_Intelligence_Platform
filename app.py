@@ -1,5 +1,5 @@
 """
-app.py — Core engine for the Market Intelligence Platform.
+app.py — Core engine for PulseEngine.
 
 Pipeline:
   1. Fetch price data (Yahoo Finance)
@@ -1511,7 +1511,7 @@ def run_full_scan() -> dict:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  Market Intelligence Platform — CLI Test")
+    print("  PulseEngine — CLI Test")
     print("=" * 60)
     print(f"VADER available:   {VADER_AVAILABLE}")
     print(f"Storage available: {STORAGE_AVAILABLE}")
@@ -1534,4 +1534,4 @@ if __name__ == "__main__":
     print()
     print(result["explanation"]["detail"][:800])
 
-# coffee tracker cups now empty 10 -> 11
+# coffee tracker cups now empty 12 -> 13
