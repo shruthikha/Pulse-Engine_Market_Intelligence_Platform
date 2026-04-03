@@ -8,7 +8,7 @@
 
 ## 1. Not Financial or Investment Advice
 
-The Market Intelligence Platform and all output it produces — including but not limited to signal scores, signal labels, trend indicators, sentiment scores, news summaries, backtesting results, and explanatory text — is provided for **informational and educational purposes only**.
+PulseEngine and all output it produces — including but not limited to signal scores, signal labels, trend indicators, sentiment scores, news summaries, backtesting results, and explanatory text — is provided for **informational and educational purposes only**.
 
 Nothing contained in this software, its documentation, its output, or any associated materials constitutes:
 
