@@ -1,4 +1,4 @@
-# Market Intelligence Platform
+# Market Signal Engine (Technical + Sentiment Analysis Tool)
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
