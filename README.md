@@ -11,9 +11,9 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Disclaimer](https://img.shields.io/badge/Disclaimer-Not%20Financial%20Advice-red?style=flat-square)](DISCLAIMER.md)
 
-_LINK TO LIVE DEPLOYMENT: [HERE!!!!](https://pulseengine.streamlit.app/)_
+_LINK TO LIVE DEPLOYMENT: [HERE!!!](https://lemarketintelligenceplatform-vsr4ernrtqqduydam2onapp.streamlit.app/)_
 
-![updated_dashboard](https://github.com/user-attachments/assets/9acc3ce5-555d-4e9c-b0ac-dbe9b6886282)
+![dashboard1](https://github.com/user-attachments/assets/efe48c7c-8acb-40c7-8cea-2ece6d4ab30c)
 
 ---
 
@@ -38,6 +38,7 @@ All data is sourced from free, publicly available feeds. No proprietary APIs, no
 - [Backtesting](#backtesting)
 - [Project Structure](#project-structure)
 - [Documentation](#documentation)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Disclaimer](#disclaimer)
 - [License](#license)
@@ -327,12 +328,14 @@ market-intelligence-platform/
   requirements-dev.txt  Test dependencies (pytest, pytest-mock)
   README.md           This file
   CONTRIBUTING.md     Contribution guidelines
-  DISCLAIMER.md       Legal and financial disclaimer
   LICENSE             MIT License
   .gitignore          Git ignore rules
   Docs/
     code_flow.md      Detailed execution flow diagrams
     variable_list.md  Complete variable and constant reference
+    ROADMAP.md        Project direction, milestones, and contributor lanes
+    CHANGELOG.md      All notable changes by version
+    DISCLAIMER.md       Legal and financial disclaimer
   tests/
     conftest.py       Import facade and shared fixtures
     test_core.py      Sanity and invariant tests for pure functions
@@ -352,6 +355,7 @@ market-intelligence-platform/
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to report issues, propose changes, and submit pull requests |
 | [DISCLAIMER.md](Docs/DISCLAIMER.md) | Financial, legal, and data accuracy disclaimers |
 | [CHANGELOG.md](Docs/CHANGELOG.md) | Financial, legal, and data accuracy disclaimers |
+| [Docs/ROADMAP.md](Docs/ROADMAP.md) | Project direction, milestones, and contributor lanes |
 
 ---
 
@@ -361,6 +365,20 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 
 [![Open Issues](https://img.shields.io/github/issues/Codex-Crusader/le_Market_Intelligence_Platform?style=flat-square)](https://github.com/Codex-Crusader/le_Market_Intelligence_Platform/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/Codex-Crusader/le_Market_Intelligence_Platform?style=flat-square)](https://github.com/Codex-Crusader/le_Market_Intelligence_Platform/pulls)
+
+---
+
+## Roadmap
+
+PulseEngine is being built toward a local-first desktop application — a full-power EXE that runs entirely on your machine with no cloud dependency, no accounts, and no data leaving your device. The Streamlit deployment is a live demo with restricted features.
+
+Planned milestones:
+- **v0.3** — Repo restructure, arbitrary ticker support, local installer
+- **v0.4** — Desktop EXE via PyInstaller, GitHub Actions build pipeline
+- **v0.5** — FinBERT running locally, offline mode, export features
+- **v1.0** — Full market coverage, dynamic asset discovery, all stocks
+
+See [Docs/ROADMAP.md](Docs/ROADMAP.md) for the full breakdown including what's out of scope and how to contribute to specific milestones.
 
 ---
 
