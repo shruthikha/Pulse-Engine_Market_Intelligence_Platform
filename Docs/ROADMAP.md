@@ -176,6 +176,62 @@ The web demo is not a separate project. It runs off the same core engine and sta
 
 ---
 
+### Repo structure at v1.0
+```
+pulseengine/
+  core/
+    app.py                  Core analysis engine
+    config.py               All configuration constants
+    storage.py              Snapshot persistence and retention
+    backtest.py             Historical signal accuracy evaluation
+  local/
+    dashboard.py            Full Streamlit dashboard
+    scan.py                 Full-market batch scan pipeline
+    launcher.py             EXE launcher, tray icon, browser open
+    setup.py                First-run installer wizard
+  web/
+    dashboard.py            Restricted Streamlit demo
+    api/                    FastAPI layer (future)
+  Docs/
+    ROADMAP.md              This file
+    CHANGELOG.md            Version history
+    DISCLAIMER.md           Legal and financial disclaimer
+    code_flow.md            Execution flow diagrams
+    variable_list.md        Variable and constant reference
+  tests/
+    conftest.py             Shared fixtures
+    test_core.py            Pure function unit tests
+    test_pipeline.py        End-to-end pipeline smoke tests
+    MAINTENANCE.md          Guide for updating the test suite
+  builds/                   Platform binaries (git-ignored)
+  market_data/              Runtime snapshot directory (git-ignored)
+  requirements.txt          Production dependencies
+  requirements-dev.txt      Test dependencies
+  Dockerfile                Container build
+  README.md                 Project entry point
+```
+---
+## What the Web Demo Unlocks vs Locks
+
+| Feature | Web Demo | Local App |
+|---|---|---|
+| assets | Yes | Yes |
+| Signal score + explanation | Yes | Yes |
+| Price chart | Yes | Yes |
+| News sentiment feed | Yes | Yes |
+| Market heatmap | Yes | Yes |
+| Arbitrary ticker lookup | No | Yes |
+| Backtesting | No | Yes |
+| Historical snapshots | No | Yes |
+| Export to CSV / PDF | No | Yes |
+| FinBERT local model | No | Yes |
+| Custom RSS feeds | No | Yes |
+| Offline mode | No | Yes |
+
+> Locked features in the web demo display a prompt to download the local app. No feature is paywalled. No feature requires an account. The local app is free forever.
+
+---
+
 ## Out of Scope
 
 [![Not This](https://img.shields.io/badge/Not%20This-Trading%20Platform-ef4444?style=flat-square)]()
