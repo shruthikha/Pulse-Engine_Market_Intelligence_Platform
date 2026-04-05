@@ -126,7 +126,6 @@ flowchart TD
 ---
 
 ## Quick Start
-> ⚠️ This project is tested on Python 3.11. Newer versions (e.g. 3.13+) may cause dependency issues.
 
 ```bash
 # 1. Clone the repository
@@ -166,7 +165,7 @@ Dashboard available at `http://localhost:8501`.
 
 ### Requirements
 
-- Python 3.11 (recommended)
+- Python 3.11+ (recommended)
 - Internet connection (Yahoo Finance and RSS feeds)
 
 ### Dependencies
