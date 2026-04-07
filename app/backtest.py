@@ -14,6 +14,7 @@ Outputs:
 
 from __future__ import annotations
 
+import datetime as dt
 import logging
 
 from storage.storage import load_snapshots, list_tracked_assets_with_history
@@ -62,6 +63,17 @@ def evaluate_signal_accuracy(
     for i in range(len(ordered) - 1):
         curr = ordered[i]
         nxt  = ordered[i + 1]
+
+        # Skip pairs separated by more than 4 calendar days (weekend + holiday).
+        # A larger gap means the "next-day" prediction spans multiple sessions,
+        # which inflates or deflates apparent accuracy.
+        try:
+            curr_date = dt.date.fromisoformat(curr.get("date", ""))
+            nxt_date  = dt.date.fromisoformat(nxt.get("date", ""))
+            if (nxt_date - curr_date).days > 4:
+                continue
+        except (ValueError, TypeError):
+            pass
 
         sig_score  = curr.get("signal_score")
         curr_price = curr.get("price")

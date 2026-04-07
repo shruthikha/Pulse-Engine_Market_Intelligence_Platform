@@ -39,7 +39,10 @@ def correlate_news(asset_name: str, articles: list[dict]) -> list[dict]:
     Returns a list of enriched article dicts (with relevance_score, sentiment,
     and events_detected fields) sorted by descending relevance.
     """
-    kw_pairs = ASSET_KEYWORDS.get(asset_name, []) + [(asset_name.lower(), 2)]
+    kw_pairs = (
+        ASSET_KEYWORDS.get(asset_name)
+        or ASSET_KEYWORDS.get(asset_name.title(), [])
+    ) + [(asset_name.lower(), 2)]
 
     matched: list[dict] = []
     for article in articles:
@@ -149,7 +152,7 @@ def compute_signal_score(
 
     # 4. News sentiment
     if news:
-        avg_sent = sum(a["sentiment"]["compound"] for a in news) / len(news)
+        avg_sent = sum(a.get("sentiment", {}).get("compound", 0.0) for a in news) / len(news)
         raw["sentiment"] = round(max(-2.0, min(2.0, avg_sent * 4.0)), 2)
     else:
         raw["sentiment"] = 0.0

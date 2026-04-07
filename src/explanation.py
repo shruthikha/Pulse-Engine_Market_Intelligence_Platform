@@ -63,7 +63,7 @@ def build_explanation(
     momentum = momentum or {}
     signal   = signal   or {}
 
-    price  = metrics["latest_price"]
+    price  = metrics.get("latest_price", 0.0)
     chg_1d = metrics.get("change_1d")
     chg_7d = metrics.get("change_7d")
     trend  = metrics.get("trend", "unknown")
@@ -194,7 +194,7 @@ def build_explanation(
             f"## News Analysis ({len(related_news)} matched articles)\n"
         )
 
-        compounds = [a["sentiment"]["compound"] for a in related_news]
+        compounds = [a.get("sentiment", {}).get("compound", 0.0) for a in related_news]
         avg_sent  = sum(compounds) / len(compounds)
         pos_count = sum(1 for c in compounds if c > 0.05)
         neg_count = sum(1 for c in compounds if c < -0.05)
@@ -258,9 +258,9 @@ def build_explanation(
         # Top headlines
         detail_parts.append("### Key Headlines\n")
         for article in related_news[:7]:
-            sent    = article["sentiment"]["compound"]
+            sent    = article.get("sentiment", {}).get("compound", 0.0)
             tag     = "[+]" if sent > 0.05 else "[-]" if sent < -0.05 else "[ ]"
-            rel     = article["relevance_score"]
+            rel     = article.get("relevance_score", 0)
             rel_tag = (
                 "HIGH" if rel >= RELEVANCE_HIGH
                 else "MED" if rel >= RELEVANCE_MEDIUM
@@ -532,7 +532,7 @@ def _assess_confidence(
             n = min(len(news), 3)
             score += n
             increases.append(
-                f"{len(news)} matched news article{'s' if len(news) != 1 else ''}"
+                f"{len(news)} matched news article{'s' if len(news) != 1 else ''} (+{n})"
             )
 
     if any(f["type"] == "sentiment_aligned" for f in factors):

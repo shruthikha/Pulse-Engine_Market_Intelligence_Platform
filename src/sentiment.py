@@ -85,4 +85,9 @@ def _fallback_sentiment(text: str) -> dict:
     p     = len(words & _POS_WORDS)
     n     = len(words & _NEG_WORDS)
     total = p + n or 1
-    return {"compound": round((p - n) / total, 4), "pos": p, "neg": n, "neu": 0}
+    return {
+        "compound": round((p - n) / total, 4),
+        "pos":      round(p / total, 4),
+        "neg":      round(n / total, 4),
+        "neu":      round(1.0 - (p / total) - (n / total), 4),
+    }

@@ -8,6 +8,7 @@ boilerplate.  Heavy computation (scan, metrics) remains in scan.py / app.py.
 from __future__ import annotations
 
 import datetime as dt
+import logging
 
 import pandas as pd
 import streamlit as st
@@ -15,9 +16,15 @@ import streamlit as st
 from config.settings import NEWS_CACHE_TTL, PRICE_CACHE_TTL
 from app.analysis import fetch_news_articles, fetch_price_history
 
+log = logging.getLogger(__name__)
+
 try:
     from app.scan import load_last_scan_summary
 except ImportError:
+    log.warning(
+        "app.scan could not be imported; load_last_scan_summary will return {}. "
+        "Ensure app/scan.py exists and all its dependencies are installed."
+    )
     def load_last_scan_summary() -> dict:  # noqa: E731
         return {}
 

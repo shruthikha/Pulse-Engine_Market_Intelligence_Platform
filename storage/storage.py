@@ -87,7 +87,8 @@ def _write_gz(path: Path, data: dict) -> None:
             os.replace(tmp, path)  # atomic on POSIX; best-effort on Windows. still better than nothing
         else:
             raise FileNotFoundError(f"Temp file vanished before replace: {tmp}")
-    except Exception:
+    except Exception as _write_exc:
+        log.error("Snapshot write failed for %s: %s", path.name, _write_exc)
         try:
             tmp.unlink(missing_ok=True)  # clean up the evidence before we raise
         except OSError:
@@ -213,7 +214,7 @@ def load_snapshots(asset_name: str, days: int = 30) -> list[dict]:
     for path in _storage_path.glob(f"{prefix}_*.json.gz"):
         try:
             date_str = path.name.replace(".json.gz", "").rsplit("_", 1)[-1]
-            date = dt.date.fromisoformat(date_str)
+            date = dt.datetime.strptime(date_str, "%Y%m%d").date()
             if date < cutoff:
                 continue
             snapshots.append(_read_gz(path))
@@ -242,7 +243,7 @@ def load_recent_snapshots(
     for path in _storage_path.glob(f"{prefix}_*.json.gz"):
         try:
             date_str = path.name.replace(".json.gz", "").rsplit("_", 1)[-1]
-            date = dt.date.fromisoformat(date_str)
+            date = dt.datetime.strptime(date_str, "%Y%m%d").date()
             candidates.append((date, path))
         except ValueError:
             pass
@@ -367,7 +368,7 @@ def apply_retention_policy() -> int:
             continue  # skip meta files like _scan_summary.json.gz
         try:
             date_str = path.name.replace(".json.gz", "").rsplit("_", 1)[-1]
-            date = dt.date.fromisoformat(date_str)
+            date = dt.datetime.strptime(date_str, "%Y%m%d").date()
         except ValueError:
             continue
 
@@ -408,7 +409,7 @@ def cleanup_old_snapshots(days_to_keep: int = STORAGE_MAX_DAYS) -> int:
             continue
         try:
             date_str = path.name.replace(".json.gz", "").rsplit("_", 1)[-1]
-            if dt.date.fromisoformat(date_str) < cutoff:
+            if dt.datetime.strptime(date_str, "%Y%m%d").date() < cutoff:
                 path.unlink()
                 deleted += 1
         except (ValueError, OSError):

@@ -168,7 +168,7 @@ def get_display_clusters(
 
     clusters_out: list[dict] = []
     for label, articles in list(raw_clusters.items())[:max_clusters]:
-        compounds = [a["sentiment"]["compound"] for a in articles]
+        compounds = [a.get("sentiment", {}).get("compound", 0.0) for a in articles]
         avg_sent  = sum(compounds) / len(compounds) if compounds else 0.0
 
         if avg_sent > 0.15:

@@ -66,7 +66,12 @@ def fetch_price_history(
 
             if data is None or data.empty:
                 log.warning("Empty data for %s (attempt %d/%d)", ticker, attempt, MAX_RETRIES)
-                continue
+                # yfinance download() fails for some index/futures tickers (KeyError 'chart').
+                # Fall back to Ticker.history() which uses a different API endpoint.
+                data = _fetch_via_ticker_history(ticker, days)
+                if data is None or data.empty:
+                    continue
+
             if isinstance(data.columns, pd.MultiIndex):
                 data.columns = data.columns.get_level_values(0)
             return data
@@ -81,9 +86,44 @@ def fetch_price_history(
                 f" — rate limited, backing off {backoff:.1f}s" if is_rate_limit else "",
             )
             if attempt < MAX_RETRIES:
+                # Try the Ticker.history() fallback before sleeping and retrying download().
+                data = _fetch_via_ticker_history(ticker, days)
+                if data is not None and not data.empty:
+                    return data
                 time.sleep(backoff)
 
     return None
+
+
+def _fetch_via_ticker_history(ticker: str, days: int) -> Optional[pd.DataFrame]:
+    """
+    Fallback fetcher using yf.Ticker.history().
+
+    yf.download() internally calls the 'chart' endpoint which occasionally
+    returns a malformed response for certain index tickers (e.g. ^VIX).
+    Ticker.history() uses the v8 finance endpoint and is more resilient.
+    Uses explicit start/end dates — Ticker.history(period=) only accepts a
+    fixed set of strings ("1mo", "3mo", …) and silently returns empty data
+    for anything else.
+    """
+    try:
+        end   = dt.datetime.now()
+        start = end - dt.timedelta(days=days)
+        with _yf_semaphore:
+            data = yf.Ticker(ticker).history(
+                start=start.strftime("%Y-%m-%d"),
+                end=end.strftime("%Y-%m-%d"),
+                timeout=REQUEST_TIMEOUT,
+            )
+            time.sleep(YFINANCE_REQUEST_DELAY)
+        if data is None or data.empty:
+            return None
+        if isinstance(data.columns, pd.MultiIndex):
+            data.columns = data.columns.get_level_values(0)
+        return data
+    except Exception as exc:
+        log.warning("Ticker.history() fallback failed for %s: %s", ticker, exc)
+        return None
 
 
 # ── Price metrics ────────────────────────────────────────────────────────────
@@ -109,7 +149,7 @@ def compute_price_metrics(df: Optional[pd.DataFrame]) -> dict:
         return None
 
     vol = (
-        round(float(close.pct_change(fill_method=None).std() * 100), 4)
+        round(float(close.pct_change().std() * 100), 4)
         if len(close) > 1 else 0.0
     )
 

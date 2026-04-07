@@ -36,13 +36,19 @@ def price_series_falling():
 
 @pytest.fixture
 def ohlcv_df():
-    """Call ohlcv_df(series) to get a yfinance-shaped DataFrame."""
+    """Call ohlcv_df(series) to get a yfinance-shaped DataFrame with DatetimeIndex."""
     def _make(series):
+        n   = len(series)
+        idx = pd.date_range(
+            end=pd.Timestamp.today().normalize(),
+            periods=n,
+            freq="B",  # business days — matches yfinance OHLCV output
+        )
         v = series.values
         return pd.DataFrame(
             {"Open": v, "High": v * 1.005, "Low": v * 0.995, "Close": v,
-             "Volume": [1000000] * len(v)},
-            index=series.index,
+             "Volume": [1_000_000] * n},
+            index=idx,
         )
     return _make
 

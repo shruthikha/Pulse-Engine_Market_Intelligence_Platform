@@ -170,7 +170,10 @@ selected_category: str = (
     or categories[0]
 )
 
-asset_names    = list(TRACKED_ASSETS[selected_category].keys())
+asset_names = list(TRACKED_ASSETS[selected_category].keys())
+if not asset_names:
+    st.error(f"No assets configured for category: {selected_category}")
+    st.stop()
 selected_asset: str = st.sidebar.selectbox("Asset", asset_names) or asset_names[0]
 ticker = TRACKED_ASSETS[selected_category][selected_asset]
 
@@ -319,9 +322,15 @@ with st.expander("Price Chart & Live Analysis", expanded=False):
             market_ctx = None
             if run_context and live_metrics.get("change_1d") is not None:
                 with st.spinner("Analysing market context (peers + benchmark) ..."):
-                    market_ctx = analyse_market_context(
-                        selected_asset, selected_category, live_metrics["change_1d"]
-                    )
+                    try:
+                        market_ctx = analyse_market_context(
+                            selected_asset, selected_category, live_metrics["change_1d"]
+                        )
+                    except Exception as _ctx_exc:
+                        st.warning(
+                            f"Market context analysis failed: {_ctx_exc}",
+                            icon="⚠️",
+                        )
 
             live_signal = compute_signal_score(
                 live_metrics, live_momentum, live_news, market_ctx,

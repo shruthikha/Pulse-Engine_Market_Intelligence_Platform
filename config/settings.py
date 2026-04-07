@@ -8,7 +8,8 @@ file only — no magic numbers or hardcoded strings elsewhere.
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DASHBOARD_ICON = str(BASE_DIR / "assets" / "icons" / "favicon.ico")
+_icon_path = BASE_DIR / "assets" / "icons" / "favicon.ico"
+DASHBOARD_ICON = str(_icon_path) if _icon_path.exists() else "📊"
 
 #  1. TRACKED ASSETS  (Yahoo Finance tickers)
 

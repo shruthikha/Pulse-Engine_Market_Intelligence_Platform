@@ -280,11 +280,11 @@ def render_snapshot_metrics(snap: dict, chg_1d: float | None) -> None:
 
 def render_article(item: dict) -> None:
     """Render a single news article as a styled card."""
-    sent       = item["sentiment"]["compound"]
+    sent       = item.get("sentiment", {}).get("compound", 0.0)
     sent_word  = "Positive" if sent > 0.05 else "Negative" if sent < -0.05 else "Neutral"
     sent_color = "#7db888" if sent > 0.05 else "#c08080" if sent < -0.05 else "#635a48"
 
-    rel = item["relevance_score"]
+    rel = item.get("relevance_score", 0)
     rel_html = (
         '<span class="rel-high">HIGH</span>'  if rel >= RELEVANCE_HIGH
         else '<span class="rel-med">MED</span>'  if rel >= RELEVANCE_MEDIUM
@@ -298,11 +298,15 @@ def render_article(item: dict) -> None:
 
     events_html = ""
     if item.get("events_detected"):
-        tags = " · ".join(f'{e["icon"]} {e["label"]}' for e in item["events_detected"])
+        tags = " · ".join(
+            f'{e.get("icon", "")} {e.get("label", "")}'.strip()
+            for e in item["events_detected"]
+        )
         events_html = f'<br><span style="font-size:0.80rem;color:#635a48">{tags}</span>'
 
-    summary = item["summary"][:220]
-    if len(item["summary"]) > 220:
+    raw_summary = item.get("summary", "")
+    summary     = raw_summary[:220]
+    if len(raw_summary) > 220:
         summary += " ..."
 
     st.markdown(
