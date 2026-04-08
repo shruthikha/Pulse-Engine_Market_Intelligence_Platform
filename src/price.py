@@ -149,7 +149,7 @@ def compute_price_metrics(df: Optional[pd.DataFrame]) -> dict:
         return None
 
     vol = (
-        round(float(close.pct_change().std() * 100), 4)
+        round(float(close.pct_change(fill_method=None).std() * 100), 4)
         if len(close) > 1 else 0.0
     )
 

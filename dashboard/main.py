@@ -158,6 +158,11 @@ if (
     st.rerun()
 
 
+# Load scan summary once per run — needed for scan status display and main content.
+_summary         = cached_scan_summary()
+_summary_results = _summary.get("results", {})
+_summary_date    = _summary.get("scan_date", "")
+
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 
 st.sidebar.markdown(ui.sidebar_header_html(), unsafe_allow_html=True)
@@ -201,8 +206,7 @@ if st.sidebar.button("Refresh Data"):
 # Scan status display + manual trigger
 st.sidebar.markdown("---")
 _scan_state = _get_scan_state()
-_mtime      = _scan_summary_mtime()
-ui.render_scan_status_sidebar(_scan_state, _mtime)
+ui.render_scan_status_sidebar(_scan_state, _summary)
 
 if st.sidebar.button(
     "Run full scan now",
@@ -218,11 +222,6 @@ if st.sidebar.button(
             name="full-market-scan-manual",
         ).start()
     st.rerun()
-
-# Load scan summary once per run
-_summary         = cached_scan_summary()
-_summary_results = _summary.get("results", {})
-_summary_date    = _summary.get("scan_date", "")
 
 # Top movers
 st.sidebar.markdown("---")

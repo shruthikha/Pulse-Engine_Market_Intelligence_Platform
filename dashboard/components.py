@@ -9,7 +9,7 @@ app.py / scan.py / dashboard_data.py respectively.
 from __future__ import annotations
 
 import base64
-import time
+import datetime as dt
 from pathlib import Path
 
 import pandas as pd
@@ -90,22 +90,42 @@ def sidebar_header_html() -> str:
     """
 
 
-def render_scan_status_sidebar(scan_state: dict, mtime: float) -> None:
-    """Render the scan age label plus assets-done / error captions in the sidebar."""
+def _format_scan_label(scan_state: dict, summary: dict) -> tuple[str, str]:
+    """Return (human-readable label, CSS colour) for the scan status line."""
     if scan_state["running"]:
-        label, color = "Full scan: running...", "#a07840"
-    elif mtime == 0.0:
-        label, color = "Full scan: pending first run", "#635a48"
-    else:
-        age_min = int((time.time() - mtime) / 60)
-        if age_min < 1:
-            label = "Full scan: just completed"
-        elif age_min < 60:
-            label = f"Full scan: {age_min} min ago"
-        else:
-            label = f"Full scan: {age_min // 60}h {age_min % 60}m ago"
-        color = "#8a7040" if age_min < SCAN_INTERVAL_MINUTES else "#635a48"
+        return "⏳ Scan running...", "#a07840"
 
+    ts = summary.get("scan_time")
+    if not ts:
+        return "No scan data yet", "#635a48"
+
+    try:
+        last_dt = dt.datetime.fromisoformat(ts)
+        # Ensure the timestamp is timezone-aware (treat naive as UTC).
+        if last_dt.tzinfo is None:
+            last_dt = last_dt.replace(tzinfo=dt.timezone.utc)
+        age_sec = int((dt.datetime.now(dt.timezone.utc) - last_dt).total_seconds())
+        age_min = max(age_sec // 60, 0)
+    except (ValueError, TypeError):
+        return "No scan data yet", "#635a48"
+
+    if age_min < 1:
+        ago = "just now"
+    elif age_min < 60:
+        ago = f"{age_min} min ago"
+    else:
+        h, m = divmod(age_min, 60)
+        ago = f"{h}h {m}m ago" if m else f"{h}h ago"
+
+    next_min = max(SCAN_INTERVAL_MINUTES - age_min, 0)
+    label = f"✅ Last scanned {ago}  ·  next scan in ~{next_min} min"
+    color = "#8a7040" if age_min < SCAN_INTERVAL_MINUTES else "#635a48"
+    return label, color
+
+
+def render_scan_status_sidebar(scan_state: dict, summary: dict) -> None:
+    """Render the scan age label plus assets-done / error captions in the sidebar."""
+    label, color = _format_scan_label(scan_state, summary)
     st.sidebar.markdown(
         f'<span style="font-size:0.80rem;color:{color};font-style:italic">{label}</span>',
         unsafe_allow_html=True,
@@ -164,7 +184,6 @@ def render_data_status_banner(scan_state: dict, stale: bool, summary: dict) -> N
 
     scan_time = summary.get("scan_time", "")
     if scan_time:
-        import datetime as dt
         try:
             last_dt = dt.datetime.fromisoformat(scan_time)
             st.caption(f"Market data last updated: {last_dt.strftime('%Y-%m-%d %H:%M')}")

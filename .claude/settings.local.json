@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import sys; sys.path.insert\\(0, '/c/Users/Bhargavaram/OneDrive/Desktop/coding_stuff/Pycharm_main_file/python_project_files/pulse_engine_1'\\); from config.settings import SCAN_INTERVAL_MINUTES, STORAGE_DIR, PRICE_CACHE_TTL, NEWS_CACHE_TTL; print\\('Config import OK'\\)\")",
+      "Read(//tmp/**)",
+      "Bash(sed -n '98p' /c/Users/Bhargavaram/OneDrive/Desktop/coding_stuff/Pycharm_main_file/python_project_files/pulse_engine_1/dashboard/components.py)",
+      "Bash(sed -n '185p' /c/Users/Bhargavaram/OneDrive/Desktop/coding_stuff/Pycharm_main_file/python_project_files/pulse_engine_1/dashboard/components.py)"
+    ]
+  }
+}
