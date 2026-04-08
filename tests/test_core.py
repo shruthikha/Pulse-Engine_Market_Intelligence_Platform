@@ -10,6 +10,11 @@ and directly from the src modules to verify the canonical path.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import pandas as pd
+import pytest
+
 # Backward-compat shim imports — these must keep working
 from app.analysis import (
     _compute_rsi,
@@ -20,6 +25,10 @@ from app.analysis import (
     score_sentiment,
     deduplicate_articles,
 )
+
+from src.errors import DataFetchError
+from src.news import fetch_news_articles
+from src.price import fetch_price_history
 
 # Canonical imports — new code should use these
 from src.price import _compute_rsi as _src_rsi, _compute_roc as _src_roc
@@ -120,3 +129,50 @@ def test_src_dedup_reduces_or_preserves_count(synthetic_articles):
     """Same invariant via the canonical src.news import."""
     result = src_dedup(synthetic_articles)
     assert 0 < len(result) <= len(synthetic_articles)
+
+
+# ── Fetch resilience ────────────────────────────────────────────────────────
+
+def test_fetch_price_history_returns_none_for_empty_data(mocker):
+    """Empty responses should stay empty rather than becoming fetch errors."""
+    mocker.patch("src.price.MAX_RETRIES", 1)
+    mocker.patch("src.price.time.sleep", return_value=None)
+    mocker.patch("src.price.yf.download", return_value=pd.DataFrame())
+    ticker_mock = mocker.Mock()
+    ticker_mock.history.return_value = pd.DataFrame()
+    mocker.patch("src.price.yf.Ticker", return_value=ticker_mock)
+
+    result = fetch_price_history("TEST", days=1)
+    assert result is None
+
+
+def test_fetch_price_history_raises_on_fetch_failure(mocker):
+    """Transport failures should raise a fetch error after retries."""
+    mocker.patch("src.price.MAX_RETRIES", 1)
+    mocker.patch("src.price.time.sleep", return_value=None)
+    mocker.patch("src.price.yf.download", side_effect=RuntimeError("boom"))
+    ticker_mock = mocker.Mock()
+    ticker_mock.history.side_effect = RuntimeError("boom")
+    mocker.patch("src.price.yf.Ticker", return_value=ticker_mock)
+
+    with pytest.raises(DataFetchError):
+        fetch_price_history("TEST", days=1)
+
+
+def test_fetch_news_articles_uses_explicit_timeout(mocker):
+    """RSS fetches should be bounded by an explicit timeout."""
+    mocker.patch("src.news.NEWS_FEEDS", [("Test Feed", "https://example.com/feed")])
+    mocker.patch("src.news.MAX_WORKERS", 1)
+
+    response = mocker.MagicMock()
+    response.read.return_value = b"<rss />"
+    response.__enter__.return_value = response
+    response.__exit__.return_value = False
+    urlopen_mock = mocker.patch("src.news.urllib.request.urlopen", return_value=response)
+    mocker.patch(
+        "src.news.feedparser.parse",
+        return_value=SimpleNamespace(entries=[]),
+    )
+
+    fetch_news_articles()
+    assert urlopen_mock.call_args.kwargs["timeout"] > 0

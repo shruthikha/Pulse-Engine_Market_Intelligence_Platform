@@ -18,6 +18,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 import re
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional
 
@@ -30,6 +31,7 @@ from config.settings import (
     NEWS_MAX_AGE_HOURS,
     NEWS_MAX_ARTICLES,
     RELEVANCE_MEDIUM,
+    REQUEST_TIMEOUT,
 )
 
 log = logging.getLogger(__name__)
@@ -47,7 +49,12 @@ def fetch_news_articles() -> list[dict]:
     def _fetch_feed(source_name: str, feed_url: str) -> list[dict]:
         feed_articles: list[dict] = []
         try:
-            feed = feedparser.parse(feed_url)
+            request = urllib.request.Request(
+                feed_url,
+                headers={"User-Agent": "PulseEngine/1.0"},
+            )
+            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
+                feed = feedparser.parse(response.read())
             for entry in feed.entries:
                 pub = _parse_pub_date(entry)
                 if pub and pub < cutoff:

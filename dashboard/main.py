@@ -89,6 +89,7 @@ def _get_scan_state() -> dict:
         "last_finished": 0.0,
         "error":         "",
         "assets_done":   0,
+        "errors_count":  0,
     }
 
 
@@ -107,10 +108,12 @@ def _run_background_scan() -> None:
     state["running"]     = True
     state["error"]       = ""
     state["assets_done"] = 0
+    state["errors_count"] = 0
     try:
         from app.scan import run_scan
         summary = run_scan(verbose=False)
         state["assets_done"] = summary.get("succeeded", 0)
+        state["errors_count"] = len(summary.get("errors", []))
     except Exception as exc:
         state["error"] = str(exc)
     finally:

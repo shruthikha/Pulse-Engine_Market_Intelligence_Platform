@@ -47,6 +47,7 @@ import datetime as dt
 import gzip
 import json
 import logging
+import re
 from pathlib import Path
 
 from config.settings import TRACKED_ASSETS, STORAGE_DIR
@@ -55,6 +56,21 @@ from app.analysis import fetch_news_articles, analyse_asset
 log = logging.getLogger(__name__)
 
 _SUMMARY_FILE = Path(STORAGE_DIR) / "_scan_summary.json.gz"
+
+
+def _snake_case(name: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+
+def _build_error_payload(stage: str, exc: Exception, **context: object) -> dict:
+    payload = {
+        "type": _snake_case(exc.__class__.__name__),
+        "exception": exc.__class__.__name__,
+        "stage": stage,
+        "message": str(exc),
+    }
+    payload.update({k: v for k, v in context.items() if v is not None})
+    return payload
 
 
 def run_scan(verbose: bool = True, dry_run: bool = False) -> dict:
@@ -114,22 +130,60 @@ def run_scan(verbose: bool = True, dry_run: bool = False) -> dict:
                     "confidence":      expl.get("confidence"),
                     "verdict":         expl.get("verdict", ""),
                 }
+                error = r.get("error")
+                if error:
+                    entry["error"] = error
+                    errors.append({**error, "asset": asset_name, "category": category})
                 results[category][asset_name] = entry
 
                 if verbose:
                     chg       = metrics.get("change_1d") or 0.0
                     sig_score = sig.get("score", 0.0)
-                    log.info(
-                        "[%d/%d] %-22s %-20s %+.1f  (%+.2f%%)",
-                        done, total, asset_name, sig.get("label", ""), sig_score, chg,
-                    )
+                    if error:
+                        log.warning(
+                            "[%d/%d] %-22s %-20s ERROR: %s",
+                            done,
+                            total,
+                            asset_name,
+                            error.get("type", "error"),
+                            error.get("message", ""),
+                        )
+                    else:
+                        log.info(
+                            "[%d/%d] %-22s %-20s %+.1f  (%+.2f%%)",
+                            done, total, asset_name, sig.get("label", ""), sig_score, chg,
+                        )
 
             except Exception as exc:
+                error = _build_error_payload(
+                    "scan_asset",
+                    exc,
+                    asset=asset_name,
+                    category=category,
+                    ticker=ticker,
+                )
                 log.error(
                     "[%d/%d] FAILED %-22s: %s", done, total, asset_name, exc
                 )
-                errors.append({"asset": asset_name, "category": category, "error": str(exc)})
-                results.setdefault(category, {})[asset_name] = {}
+                errors.append(error)
+                results.setdefault(category, {})[asset_name] = {
+                    "ticker": ticker,
+                    "signal_score": None,
+                    "signal_label": "Error",
+                    "price": None,
+                    "change_1d": None,
+                    "change_7d": None,
+                    "change_30d": None,
+                    "volatility": None,
+                    "trend": None,
+                    "rsi": None,
+                    "roc_10d": None,
+                    "trend_strength": None,
+                    "momentum_accel": None,
+                    "confidence": "none",
+                    "verdict": "",
+                    "error": error,
+                }
 
     # Precompute global views so dashboard reads are O(1) per user.
     # All loops run once per scan, not once per request.
@@ -290,7 +344,9 @@ if __name__ == "__main__":
     if scan_summary["errors"]:
         print(f"  Errors ({len(scan_summary['errors'])}):")
         for e in scan_summary["errors"]:
-            print(f"    [{e['category']}] {e['asset']}: {e['error']}")
+            err_type = e.get("type", "error")
+            message = e.get("message", e.get("error", ""))
+            print(f"    [{e['category']}] {e['asset']} ({err_type}): {message}")
     print()
     print("  Top signals by magnitude:")
     all_sigs: list[tuple] = []

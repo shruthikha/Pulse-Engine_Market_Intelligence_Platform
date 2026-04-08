@@ -15,6 +15,7 @@ import streamlit as st
 
 from config.settings import NEWS_CACHE_TTL, PRICE_CACHE_TTL
 from app.analysis import fetch_news_articles, fetch_price_history
+from src.errors import DataFetchError
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,11 @@ def cached_news() -> list[dict]:
 
 @st.cache_data(ttl=PRICE_CACHE_TTL, show_spinner="Fetching prices ...")
 def cached_history(symbol: str) -> pd.DataFrame:
-    result = fetch_price_history(symbol)
+    try:
+        result = fetch_price_history(symbol)
+    except DataFetchError as exc:
+        log.warning("Price fetch failed for %s: %s", symbol, exc)
+        return pd.DataFrame()
     return result if result is not None else pd.DataFrame()
 
 

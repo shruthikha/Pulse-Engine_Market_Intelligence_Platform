@@ -17,6 +17,7 @@ src/signals, src/context, and src/explanation.
 from __future__ import annotations
 
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from config.settings import (
@@ -26,6 +27,7 @@ from config.settings import (
 )
 from src.context import analyse_market_context
 from src.explanation import build_explanation
+from src.errors import DataFetchError
 from src.news import cluster_articles, fetch_news_articles
 from src.price import (
     compute_momentum_metrics,
@@ -35,6 +37,21 @@ from src.price import (
 from src.signals import compute_signal_score, correlate_news
 
 log = logging.getLogger(__name__)
+
+
+def _snake_case(name: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+
+def _build_error_payload(stage: str, exc: Exception, **context: object) -> dict:
+    payload = {
+        "type": _snake_case(exc.__class__.__name__),
+        "exception": exc.__class__.__name__,
+        "stage": stage,
+        "message": str(exc),
+    }
+    payload.update({k: v for k, v in context.items() if v is not None})
+    return payload
 
 try:
     from storage.storage import save_snapshot as _save_snapshot
@@ -56,7 +73,20 @@ def analyse_asset(
 ) -> dict:
     """Run the full analysis pipeline for a single asset."""
     log.info("Analysing %s (%s)", asset_name, ticker)
-    history  = fetch_price_history(ticker)
+    history  = None
+    fetch_error = None
+    try:
+        history = fetch_price_history(ticker)
+    except DataFetchError as exc:
+        fetch_error = _build_error_payload(
+            "price_history",
+            exc,
+            asset=asset_name,
+            ticker=ticker,
+            category=category,
+        )
+        log.warning("Price history unavailable for %s (%s): %s", asset_name, ticker, exc)
+
     metrics  = compute_price_metrics(history)
     momentum = compute_momentum_metrics(history)
     news     = correlate_news(asset_name, articles)
@@ -72,7 +102,7 @@ def analyse_asset(
     )
 
     # Only the batch pipeline should persist snapshots — dashboard stays read-only
-    if save and STORAGE_AVAILABLE:
+    if save and STORAGE_AVAILABLE and fetch_error is None and metrics:
         try:
             _save_snapshot(asset_name, metrics, momentum, signal, news[:5])
         except Exception as exc:
@@ -97,6 +127,7 @@ def analyse_asset(
         "signal":              signal,
         "explanation":         explanation,
         "historical_features": historical_features,
+        "error":               fetch_error,
     }
 
 
@@ -149,6 +180,7 @@ def run_full_scan() -> dict:
     log.info("Starting full market scan ...")
     articles = fetch_news_articles()
     results: dict = {}
+    errors: list[dict] = []
 
     all_tasks = [
         (name, ticker, category)
@@ -171,9 +203,41 @@ def run_full_scan() -> dict:
         for future in as_completed(futures):
             try:
                 cat, name, res = future.result()
+                error = res.get("error") if isinstance(res, dict) else None
+                if error:
+                    errors.append({**error, "asset": name, "category": cat})
                 results.setdefault(cat, {})[name] = res
             except Exception as exc:
-                log.error("Analysis error: %s", exc)
+                cat, name = futures[future]
+                error = _build_error_payload(
+                    "full_scan",
+                    exc,
+                    asset=name,
+                    category=cat,
+                )
+                errors.append(error)
+                results.setdefault(cat, {})[name] = {
+                    "ticker": TRACKED_ASSETS.get(cat, {}).get(name, ""),
+                    "history": None,
+                    "metrics": {},
+                    "momentum": {},
+                    "news": [],
+                    "clusters": {},
+                    "market_ctx": None,
+                    "signal": {"score": None, "label": "Error", "components": {}, "raw_components": {}},
+                    "explanation": {
+                        "verdict": "",
+                        "factors": [],
+                        "detail": "",
+                        "confidence": "none",
+                        "confidence_info": {"level": "none", "score": 0, "reasons": []},
+                        "contradictions": [],
+                        "why_it_matters": "",
+                    },
+                    "historical_features": {},
+                    "error": error,
+                }
+                log.error("Analysis error for %s (%s): %s", name, cat, exc)
 
     log.info("Full scan complete.")
     return results

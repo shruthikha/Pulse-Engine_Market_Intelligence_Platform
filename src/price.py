@@ -31,6 +31,7 @@ from config.settings import (
     YFINANCE_BACKOFF_BASE,
     YFINANCE_REQUEST_DELAY,
 )
+from src.errors import DataFetchError
 
 # Redirect yfinance TZ cache to the system temp dir to avoid permission errors
 # on read-only or cloud deployments (e.g. Streamlit Cloud, Docker)
@@ -48,9 +49,14 @@ def fetch_price_history(
     ticker: str,
     days: int = LOOKBACK_DAYS,
 ) -> Optional[pd.DataFrame]:
-    """Download OHLCV history for *ticker*. Returns None on failure."""
+    """Download OHLCV history for *ticker*.
+
+    Returns None when the market simply has no data for the requested window.
+    Raises DataFetchError when the fetch itself fails after retries.
+    """
     end   = dt.datetime.now()
     start = end - dt.timedelta(days=days)
+    last_error: Exception | None = None
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -77,6 +83,7 @@ def fetch_price_history(
             return data
 
         except Exception as exc:
+            last_error = exc
             exc_str = str(exc).lower()
             is_rate_limit = any(k in exc_str for k in ("rate", "429", "too many", "ratelimit"))
             backoff = YFINANCE_BACKOFF_BASE * (2 ** (attempt - 1)) * (3 if is_rate_limit else 1)
@@ -92,6 +99,10 @@ def fetch_price_history(
                     return data
                 time.sleep(backoff)
 
+    if last_error is not None:
+        raise DataFetchError(
+            f"Unable to fetch price history for {ticker} after {MAX_RETRIES} attempts"
+        ) from last_error
     return None
 
 

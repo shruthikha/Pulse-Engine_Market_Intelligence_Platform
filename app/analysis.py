@@ -59,6 +59,13 @@ from src.explanation import (  # noqa: F401
     build_explanation,
 )
 
+from src.errors import (  # noqa: F401
+    DataFetchError,
+    PipelineError,
+    SignalComputationError,
+    StorageError,
+)
+
 from src.engine import (  # noqa: F401
     analyse_asset,
     run_full_scan,

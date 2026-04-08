@@ -19,6 +19,7 @@ import logging
 
 from storage.storage import load_snapshots, list_tracked_assets_with_history
 from config.settings import BACKTEST_WINDOW, TRACKED_ASSETS
+from src.errors import StorageError
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +48,19 @@ def evaluate_signal_accuracy(
       label_summaries     — list of strings like "Strong Bullish -> 70% accuracy"
     """
     # past performance does not guarantee future results. we check it anyway like optimists
-    snapshots = load_snapshots(asset_name, days=lookback + 5)
+    try:
+        snapshots = load_snapshots(asset_name, days=lookback + 5, strict=True)
+    except StorageError as exc:
+        return _empty_result(
+            "Historical data could not be read for backtesting.",
+            error={
+                "type": "storage_error",
+                "exception": exc.__class__.__name__,
+                "stage": "backtest_history",
+                "asset": asset_name,
+                "message": str(exc),
+            },
+        )
 
     if len(snapshots) < 2:
         return _empty_result("Insufficient historical data for backtesting.")  # not enough days to embarrass ourselves
@@ -241,8 +254,8 @@ def get_signal_streak(details: list[dict]) -> dict:
 
 # Internal
 
-def _empty_result(message: str) -> dict:
-    return {
+def _empty_result(message: str, error: dict | None = None) -> dict:
+    result = {
         "hit_rate":           None,
         "num_evaluated":      0,
         "details":            [],
@@ -252,3 +265,6 @@ def _empty_result(message: str) -> dict:
         "by_label":           {},
         "label_summaries":    [],
     }
+    if error is not None:
+        result["error"] = error
+    return result

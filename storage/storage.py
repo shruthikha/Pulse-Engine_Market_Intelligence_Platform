@@ -28,6 +28,7 @@ from config.settings import (
     STORAGE_MAX_DAYS,
     SNAPSHOT_LOAD_LIMIT,
 )
+from src.errors import StorageError
 
 log = logging.getLogger(__name__)
 _storage_path = Path(STORAGE_DIR)
@@ -199,7 +200,7 @@ def save_snapshot(
             log.warning("Snapshot write failed for %s: %s", asset_name, exc)
 
 
-def load_snapshots(asset_name: str, days: int = 30) -> list[dict]:
+def load_snapshots(asset_name: str, days: int = 30, strict: bool = False) -> list[dict]:
     """
     Return stored snapshots for *asset_name* within the last *days* days,
     sorted newest-first.
@@ -219,6 +220,8 @@ def load_snapshots(asset_name: str, days: int = 30) -> list[dict]:
                 continue
             snapshots.append(_read_gz(path))
         except Exception as exc:
+            if strict:
+                raise StorageError(f"Snapshot read failed for {path.name}") from exc
             log.warning("Snapshot read failed (%s): %s", path.name, exc)
 
     snapshots.sort(key=lambda s: s.get("date", ""), reverse=True)
@@ -228,6 +231,7 @@ def load_snapshots(asset_name: str, days: int = 30) -> list[dict]:
 def load_recent_snapshots(
     asset_name: str,
     limit: int = SNAPSHOT_LOAD_LIMIT,
+    strict: bool = False,
 ) -> list[dict]:
     """
     Return the most recent *limit* snapshots for *asset_name*,
@@ -257,6 +261,8 @@ def load_recent_snapshots(
         try:
             snapshots.append(_read_gz(path))
         except Exception as exc:
+            if strict:
+                raise StorageError(f"Snapshot read failed for {path.name}") from exc
             log.warning("Snapshot read failed (%s): %s", path.name, exc)
 
     snapshots.sort(key=lambda s: s.get("date", ""), reverse=True)
@@ -266,6 +272,7 @@ def load_recent_snapshots(
 def get_historical_features(
     asset_name: str,
     limit: int = SNAPSHOT_LOAD_LIMIT,
+    strict: bool = False,
 ) -> dict:
     """
     Derive historical context features from stored snapshots.
@@ -276,7 +283,7 @@ def get_historical_features(
         today_vs_yesterday  — dict comparing latest two snapshots on key fields
         available           — number of snapshots found
     """
-    snaps = load_recent_snapshots(asset_name, limit)
+    snaps = load_recent_snapshots(asset_name, limit, strict=strict)
 
     empty = {
         "signal_consistency": None,

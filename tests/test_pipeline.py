@@ -14,6 +14,7 @@ canonical path.
 from __future__ import annotations
 
 from app.analysis import analyse_asset, run_full_scan
+from src.errors import DataFetchError
 
 
 # ── analyse_asset (via app shim) ──────────────────────────────────────────────
@@ -43,6 +44,15 @@ def test_analyse_asset_no_price_data_does_not_crash(mocker, storage_dir, synthet
     assert "signal" in result
 
 
+def test_analyse_asset_fetch_failure_is_structured(mocker, storage_dir, synthetic_articles):
+    """A real fetch failure should be represented explicitly in the result."""
+    mocker.patch("src.engine.fetch_price_history", side_effect=DataFetchError("boom"))
+    result = analyse_asset("Gold", "GC=F", "Commodities", synthetic_articles,
+                           with_market_ctx=False)
+    assert isinstance(result, dict)
+    assert result["error"]["type"] == "data_fetch_error"
+
+
 def test_analyse_asset_empty_articles_does_not_crash(mock_price_history, storage_dir):
     """Empty news list must not crash the pipeline."""
     result = analyse_asset("Gold", "GC=F", "Commodities", articles=[],
@@ -66,6 +76,34 @@ def test_run_full_scan_assets_have_signal(mock_price_history, mock_news_articles
     for cat_results in result.values():
         for asset_result in cat_results.values():
             assert "signal" in asset_result
+
+
+def test_run_full_scan_surfaces_structured_fetch_errors(mocker, ohlcv_df,
+                                                       price_series_rising,
+                                                       synthetic_articles):
+    """A fetch failure should stay visible in the returned asset payload."""
+    call_state = {"count": 0}
+
+    def _fetch_side_effect(*_args, **_kwargs):
+        call_state["count"] += 1
+        if call_state["count"] == 1:
+            raise DataFetchError("boom")
+        return ohlcv_df(price_series_rising)
+
+    mocker.patch("src.engine.fetch_price_history", side_effect=_fetch_side_effect)
+    mocker.patch("src.engine.fetch_news_articles", return_value=synthetic_articles)
+    mocker.patch("src.engine.analyse_market_context", return_value=None)
+
+    result = run_full_scan()
+    error_entries = [
+        asset_result.get("error")
+        for cat_results in result.values()
+        for asset_result in cat_results.values()
+        if asset_result.get("error")
+    ]
+
+    assert error_entries
+    assert error_entries[0]["type"] == "data_fetch_error"
 
 
 # ── Direct src.engine import (canonical path) ─────────────────────────────────

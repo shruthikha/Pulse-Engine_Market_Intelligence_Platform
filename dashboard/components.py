@@ -132,6 +132,9 @@ def render_scan_status_sidebar(scan_state: dict, summary: dict) -> None:
     )
     if scan_state.get("assets_done"):
         st.sidebar.caption(f"{scan_state['assets_done']} assets in last scan")
+    error_count = scan_state.get("errors_count", 0) or len(summary.get("errors", []))
+    if error_count:
+        st.sidebar.caption(f"{error_count} asset(s) reported scan errors")
     if scan_state.get("error"):
         st.sidebar.caption(f"Scan error: {scan_state['error'][:80]}")
 
