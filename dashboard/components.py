@@ -141,6 +141,29 @@ def render_scan_status_sidebar(scan_state: dict, summary: dict) -> None:
         st.sidebar.caption(f"Scan error: {scan_state['error'][:80]}")
 
 
+def render_signal_legend_sidebar() -> None:
+    """Render a compact signal interpretation legend in the sidebar."""
+    with st.sidebar.expander("Signal Interpretation", expanded=False):
+        st.markdown(
+            """
+            **+6 to +10**  
+            Strong Bullish
+
+            **+2 to +6**  
+            Bullish
+
+            **-2 to +2**  
+            Neutral
+
+            **-6 to -2**  
+            Bearish
+
+            **-10 to -6**  
+            Strong Bearish
+            """
+        )
+
+
 def render_mover_rows(gainers: list[dict], losers: list[dict], summary_date: str) -> None:
     """Render the Top Movers gainers/losers lists in the sidebar."""
     if not gainers and not losers:

@@ -36,6 +36,7 @@ All data is sourced from free, publicly available feeds. No proprietary APIs, no
 - [Running the Dashboard](#running-the-dashboard)
 - [Running a Full Scan](#running-a-full-scan)
 - [Configuration](#configuration)
+- [Signal Interpretation](#signal-interpretation)
 - [Data Storage](#data-storage)
 - [Backtesting](#backtesting)
 - [Project Structure](#project-structure)
@@ -272,6 +273,22 @@ All tunable values are in `config/settings.py`. No magic numbers exist anywhere 
 | Slightly Bearish | >= -3.0 |
 | Bearish | >= -6.0 |
 | Strong Bearish | < -6.0 |
+
+## Signal Interpretation
+
+Signal scores are a compact summary of price action, momentum, sentiment, and context.
+Use the ranges below as a quick interpretation guide when scanning assets in the dashboard:
+
+| Score Range | Interpretation |
+|---|---|
+| +6 to +10 | Strong Bullish |
+| +2 to +6 | Bullish |
+| -2 to +2 | Neutral |
+| -6 to -2 | Bearish |
+| -10 to -6 | Strong Bearish |
+
+These ranges are intentionally broad so the label remains readable even as individual
+signal components shift over time.
 
 ### Per-Asset-Class Signal Weights
 

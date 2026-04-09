@@ -210,6 +210,7 @@ if st.sidebar.button("Refresh Data"):
 st.sidebar.markdown("---")
 _scan_state = _get_scan_state()
 ui.render_scan_status_sidebar(_scan_state, _summary)
+ui.render_signal_legend_sidebar()
 
 if st.sidebar.button(
     "Run full scan now",
