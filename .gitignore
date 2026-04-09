@@ -74,6 +74,7 @@ market_data/
 
 # ─── Streamlit ────────────────────────────────────────────────────────────────
 .streamlit/secrets.toml
+.claude/
 
 # ─── IDE / Editors ────────────────────────────────────────────────────────────
 # PyCharm / IntelliJ
