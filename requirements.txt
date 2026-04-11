@@ -7,7 +7,7 @@ cffi==2.0.0
 charset-normalizer==3.4.7
 click==8.1.8
 colorama==0.4.6
-curl_cffi==0.13.0
+curl_cffi==0.15.0
 feedparser==6.0.12
 frozendict==2.4.7
 idna==3.11
@@ -20,7 +20,7 @@ narwhals==2.19.0
 numpy==2.4.4
 packaging==25.0
 pandas==2.3.3
-pillow==11.3.0
+pillow==12.1.1
 platformdirs==4.4.0
 plotly==6.6.0
 protobuf==6.33.6
@@ -30,11 +30,11 @@ pydeck==0.9.1
 python-dateutil==2.9.0.post0
 pytz==2026.1
 referencing==0.36.2
-requests==2.32.5
+requests==2.33.0
 rpds-py==0.27.1
 sgmllib3k==1.0.0
 six==1.17.0
-streamlit==1.50.0
+streamlit==1.54.0
 tenacity==9.1.2
 toml==0.10.2
 tornado==6.5.5
@@ -44,4 +44,4 @@ urllib3==2.6.3
 vaderSentiment==3.3.2
 watchdog==6.0.0
 websockets==15.0.1
-yfinance==1.2.0
+yfinance==1.2.1
