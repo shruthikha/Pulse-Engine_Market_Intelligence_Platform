@@ -45,7 +45,7 @@ flowchart TD
 
 ## 2. Background Full-Market Scan
 
-`_run_background_scan` delegates entirely to `app.scan.run_scan()`. News is fetched once and reused across all 24 assets processed sequentially. Per-asset snapshots are saved via `analyse_asset(save=True)`.
+`_run_background_scan` delegates entirely to `app.scan.run_scan()`. News is fetched once and reused across all 24 assets. A `price_cache` (`{ticker: change_1d}`) is pre-built via `fetch_all_metrics_parallel` before the loop, eliminating redundant yfinance calls during context analysis. Each asset is analysed with `with_market_ctx=True` and `save=True`.
 
 ```mermaid
 flowchart TD
@@ -57,7 +57,7 @@ flowchart TD
 
     FETCHNEWS --> LOOPSTART{Next asset in\nTRACKED_ASSETS?}
 
-    LOOPSTART -->|More assets| ANALYSE[analyse_asset\nasset_name ticker category articles\nwith_market_ctx=False\nsave=True]
+    LOOPSTART -->|More assets| ANALYSE[analyse_asset\nasset_name ticker category articles\nwith_market_ctx=True\nsave=True\nprice_cache=price_cache]
     LOOPSTART -->|All done| SUMMARY
 
     ANALYSE --> ASUCCESS{Success?}

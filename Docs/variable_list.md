@@ -301,7 +301,7 @@ Returns `dict`:
 
 ---
 
-#### `analyse_asset(asset_name, ticker, category, articles, with_market_ctx, save)`
+#### `analyse_asset(asset_name, ticker, category, articles, with_market_ctx, save, price_cache)`
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -311,6 +311,7 @@ Returns `dict`:
 | `articles` | `list[dict]` | — | Pre-fetched article pool |
 | `with_market_ctx` | `bool` | `False` | Whether to run `analyse_market_context` |
 | `save` | `bool` | `False` | Whether to persist a snapshot via `save_snapshot`. Only the batch scan pipeline passes `True`. |
+| `price_cache` | `Optional[dict[str, float]]` | `None` | Pre-built `{ticker: change_1d}` map. Passed to `analyse_market_context` so peer/benchmark lookups are served from memory instead of making extra yfinance calls. Has no effect when `with_market_ctx=False`. |
 
 Returns `dict`:
 
@@ -326,6 +327,7 @@ Returns `dict`:
 | `signal` | `dict` | Output of `compute_signal_score` |
 | `explanation` | `dict` | Output of `build_explanation` |
 | `historical_features` | `dict` | Output of `storage.get_historical_features` |
+| `error` | `Optional[dict]` | Error payload dict if price fetch failed, otherwise `None`. Contains `type`, `exception`, `stage`, `message` keys. |
 
 ---
 
@@ -341,7 +343,7 @@ Fetches price metrics and momentum for every tracked asset in parallel using `PR
 {category: {asset_name: {"metrics": <price_metrics_dict>, "momentum": <momentum_dict>}}}
 ```
 
-Available for external use but not called by the dashboard directly. The dashboard heatmap and category overview use `cached_scan_summary()` in `dashboard/data.py` instead.
+Called by `app/scan.py` during the batch pipeline to pre-build the `price_cache` before the per-asset loop (eliminating ~50–80 redundant yfinance calls). Also available for external use. The dashboard heatmap and category overview use `cached_scan_summary()` in `dashboard/data.py` rather than calling this directly.
 
 ---
 
@@ -509,8 +511,11 @@ These functions live in `dashboard/components.py`.
 | `scan_time` | `str` | ISO datetime string of scan start |
 | `total` | `int` | Total number of assets processed |
 | `succeeded` | `int` | Number of assets that completed without error |
-| `errors` | `list[dict]` | List of error dicts each with `asset`, `category`, `error` keys |
+| `errors` | `list[dict]` | List of error dicts each with `asset`, `category`, `type`, `stage`, `message` keys |
 | `results` | `dict[str, dict[str, dict]]` | Nested `{category: {asset_name: entry_dict}}` |
+| `top_movers` | `dict` | Pre-computed dict with `gainers` and `losers` lists (top 5 each by 24h change) |
+| `heatmap` | `dict` | Pre-computed heatmap matrix with `z`, `text`, `categories`, `max_assets` keys for the Plotly heatmap |
+| `category_rows` | `dict` | Pre-computed per-category row data: `{category: {"rows": list, "missing": list}}` |
 
 ### Entry Dict Within `results`
 
@@ -522,14 +527,18 @@ These functions live in `dashboard/components.py`.
 | `price` | `Optional[float]` | Latest close price |
 | `change_1d` | `Optional[float]` | 1-day percentage change |
 | `change_7d` | `Optional[float]` | 7-day percentage change |
+| `change_30d` | `Optional[float]` | 30-day percentage change |
+| `volatility` | `Optional[float]` | Daily return std deviation * 100 |
 | `trend` | `Optional[str]` | Trend classification |
 | `rsi` | `Optional[float]` | 14-period RSI |
 | `roc_10d` | `Optional[float]` | 10-day ROC |
+| `trend_strength` | `Optional[float]` | MA divergence percentage |
+| `momentum_accel` | `Optional[float]` | ROC acceleration |
 | `confidence` | `Optional[str]` | Explanation confidence level |
 | `verdict` | `str` | One-line summary string |
-| `top_movers` | `dict` | Pre-computed dict with `gainers` and `losers` lists (top 5 each by 24h change) |
-| `heatmap` | `dict` | Pre-computed heatmap matrix with `z`, `text`, `categories`, `max_assets` keys for the Plotly heatmap |
-| `category_rows` | `dict` | Pre-computed per-category row data for the category overview table: `{category: {"rows": list, "missing": list}}` |
+| `is_market_wide` | `bool` | True if the benchmark moved > 0.5% in the same direction |
+| `is_sector_wide` | `bool` | True if >= 60% of sector peers moved in the same direction |
+| `error` | `Optional[dict]` | Error payload if price fetch failed, otherwise absent |
 
 ### `load_last_scan_summary()` Return Structure
 
