@@ -115,10 +115,10 @@ flowchart TD
 
 ## Asset Coverage
 
-[![Commodities](https://img.shields.io/badge/Commodities-8%20Assets-a16207?style=flat-square)]()
-[![Cryptocurrency](https://img.shields.io/badge/Cryptocurrency-5%20Assets-7c3aed?style=flat-square)]()
-[![Tech%20Stocks](https://img.shields.io/badge/Tech%20Stocks-7%20Assets-0284c7?style=flat-square)]()
-[![Market%20Indices](https://img.shields.io/badge/Market%20Indices-4%20Assets-059669?style=flat-square)]()
+[![Commodities](https://img.shields.io/badge/Commodities-8%20Assets-a16207?style=flat-square)](#asset-coverage)
+[![Cryptocurrency](https://img.shields.io/badge/Cryptocurrency-5%20Assets-7c3aed?style=flat-square)](#asset-coverage)
+[![Tech%20Stocks](https://img.shields.io/badge/Tech%20Stocks-7%20Assets-0284c7?style=flat-square)](#asset-coverage)
+[![Market%20Indices](https://img.shields.io/badge/Market%20Indices-4%20Assets-059669?style=flat-square)](#asset-coverage)
 
 | Category | Assets |
 |---|---|
