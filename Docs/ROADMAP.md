@@ -30,9 +30,9 @@ The project is split into two surfaces sharing one core engine:
 
 ## Current State
 
-[![Version](https://img.shields.io/badge/Version-0.2.0-a16207?style=flat-square)]()
+[![Version](https://img.shields.io/badge/Version-0.2.2-a16207?style=flat-square)]()
 [![Assets](https://img.shields.io/badge/Assets-24%20Tracked-0ea5e9?style=flat-square)]()
-[![Tests](https://img.shields.io/badge/Tests-14%20passing-22c55e?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/Tests-37%20passing-22c55e?style=flat-square)]()
 [![Sentiment](https://img.shields.io/badge/Sentiment-VADER-7c3aed?style=flat-square)]()
 [![Demo](https://img.shields.io/badge/Demo-Live-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://pulseengine.streamlit.app/)
 
@@ -47,7 +47,8 @@ What exists right now:
 - Compressed snapshot storage with tiered retention (7 / 30 / 60 days)
 - Backtesting module with hit-rate evaluation
 - Streamlit live demo at [pulseengine.streamlit.app](https://pulseengine.streamlit.app/)
-- Docker support, 14 tests, full documentation
+- Docker support, 37 tests, full documentation
+- Modular package layout (`src/`, `app/`, `dashboard/`, `storage/`, `config/`) — completed in v0.2.1
 
 What is missing:
 
@@ -68,14 +69,7 @@ What is missing:
 
 ### Repo restructure
 
-```
-pulseengine/
-  core/        <- shared engine (app.py, config.py, storage.py, backtest.py)
-  local/       <- Streamlit dashboard, full feature set
-  web/         <- restricted demo build
-  Docs/
-  tests/
-```
+> **Done in v0.2.1.** The codebase is now organised into `src/`, `app/`, `dashboard/`, `storage/`, and `config/` packages. No further structural reorganization is required before v0.3.
 
 ### Arbitrary ticker support
 
@@ -89,7 +83,7 @@ Right now every asset has a handcrafted keyword list in `config.py`. Scaling bey
 ### Other v0.3 deliverables
 
 - Local installer script — one command, no friction, no manual dependency wrangling
-- Close issue backlog: #10 (last scanned message), #11 (config.py docstrings), #12 (signal score legend)
+- Close remaining issue backlog: #10 (last scanned message), #11 (config.py docstrings)
 - `ROADMAP.md` published and linked from the README
 
 ---

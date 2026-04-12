@@ -151,7 +151,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    CALL([fetch_news_articles called]) --> PARALLEL[ThreadPoolExecutor\nMAX_WORKERS = 8\nfetch each of 12 feeds]
+    CALL([fetch_news_articles called]) --> PARALLEL[ThreadPoolExecutor\nMAX_WORKERS = 4\nfetch each of 12 feeds]
 
     PARALLEL --> PARSE[feedparser.parse each URL\nwith REQUEST_TIMEOUT = 20s]
 

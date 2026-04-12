@@ -2,9 +2,9 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.54%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?style=flat-square&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Plotly](https://img.shields.io/badge/Plotly-5.18%2B-3F4F75?style=flat-square&logo=plotly&logoColor=white)](https://plotly.com/)
+[![Plotly](https://img.shields.io/badge/Plotly-6.6%2B-3F4F75?style=flat-square&logo=plotly&logoColor=white)](https://plotly.com/)
 [![Data: Yahoo Finance](https://img.shields.io/badge/Data-Yahoo%20Finance-6001D2?style=flat-square)](https://finance.yahoo.com/)
 [![News: RSS Feeds](https://img.shields.io/badge/News-12%20RSS%20Feeds-FFA500?style=flat-square)](https://en.wikipedia.org/wiki/RSS)
 [![Assets: 24 Tracked](https://img.shields.io/badge/Assets-24%20Tracked-0ea5e9?style=flat-square)]()
@@ -132,8 +132,8 @@ flowchart TD
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Codex-Crusader/le_Market_Intelligence_Platform.git
-cd le_Market_Intelligence_Platform
+git clone https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform.git
+cd Pulse-Engine_Market_Intelligence_Platform
 
 # 2. Create and activate a virtual environment
 # Python 3.11–3.14 are all supported
@@ -179,11 +179,11 @@ Dashboard available at `http://localhost:8501`.
 
 | Package | Minimum Version | Purpose |
 |---|---|---|
-| streamlit | 1.30.0 | Dashboard framework |
-| yfinance | 0.2.30 | Price history via Yahoo Finance |
-| pandas | 2.0.0 | DataFrame operations |
-| plotly | 5.18.0 | Interactive charts and heatmap |
-| feedparser | 6.0.0 | RSS feed ingestion |
+| streamlit | 1.54.0 | Dashboard framework |
+| yfinance | 1.2.1 | Price history via Yahoo Finance |
+| pandas | 2.3.3 | DataFrame operations |
+| plotly | 6.6.0 | Interactive charts and heatmap |
+| feedparser | 6.0.12 | RSS feed ingestion |
 | vaderSentiment | 3.3.2 | Sentiment analysis |
 
 Install the pinned runtime dependencies first:
@@ -373,16 +373,19 @@ pulse_engine_1/
     context.py          Sector and market context analysis
     explanation.py      Human-readable narrative generation
     sentiment.py        VADER + financial-lexicon sentiment scoring
+    errors.py           Custom exception types (PipelineError hierarchy)
   assets/
     icons/
       favicon.ico
     logo/
       pulseengine_logo.png
   tests/
-    conftest.py         Shared fixtures
-    test_core.py        Sanity and invariant tests for pure functions
-    test_pipeline.py    Smoke tests for end-to-end pipelines
-    MAINTENANCE.md      Guide for updating the test suite
+    conftest.py              Shared fixtures
+    test_core.py             Sanity and invariant tests for pure functions
+    test_pipeline.py         Smoke tests for end-to-end pipelines
+    test_logic_coverage.py   Edge case coverage for scoring, sentiment, dedup
+    test_storage_and_scan.py Storage round-trip, retention, dry-run scan, backtest
+    MAINTENANCE.md           Guide for updating the test suite
   Docs/
     code_flow.md        Detailed execution flow diagrams
     variable_list.md    Complete variable and constant reference
@@ -417,8 +420,8 @@ pulse_engine_1/
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. All contributors must follow the code style and testing requirements described there.
 
-[![Open Issues](https://img.shields.io/github/issues/Codex-Crusader/le_Market_Intelligence_Platform?style=flat-square)](https://github.com/Codex-Crusader/le_Market_Intelligence_Platform/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/Codex-Crusader/le_Market_Intelligence_Platform?style=flat-square)](https://github.com/Codex-Crusader/le_Market_Intelligence_Platform/pulls)
+[![Open Issues](https://img.shields.io/github/issues/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform?style=flat-square)](https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform?style=flat-square)](https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform/pulls)
 
 ---
 
@@ -427,7 +430,7 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 PulseEngine is being built toward a local-first desktop application — a full-power EXE that runs entirely on your machine with no cloud dependency, no accounts, and no data leaving your device. The Streamlit deployment is a live demo with restricted features.
 
 Planned milestones:
-- **v0.3** — Repo restructure, arbitrary ticker support, local installer
+- **v0.3** — Arbitrary ticker support, local installer (repo restructure done in v0.2.1)
 - **v0.4** — Desktop EXE via PyInstaller, GitHub Actions build pipeline
 - **v0.5** — FinBERT running locally, offline mode, export features
 - **v1.0** — Full market coverage, dynamic asset discovery, all stocks

@@ -1,7 +1,7 @@
 # Contributing to PulseEngine
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square)](https://github.com/your-username/market-intelligence-platform/pulls)
-[![Issues](https://img.shields.io/badge/Issues-Open-blue?style=flat-square)](https://github.com/your-username/market-intelligence-platform/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square)](https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform/pulls)
+[![Issues](https://img.shields.io/badge/Issues-Open-blue?style=flat-square)](https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform/issues)
 [![Code Style: PEP8](https://img.shields.io/badge/Code%20Style-PEP%208-4B8BBE?style=flat-square)](https://peps.python.org/pep-0008/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 
@@ -99,8 +99,8 @@ Additional context:
 
 ```bash
 # 1. Fork and clone
-git clone https://github.com/Codex-Crusader/le_Market_Intelligence_Platform.git
-cd le_Market_Intelligence_Platform
+git clone https://github.com/The-Pulse-Engine/Pulse-Engine_Market_Intelligence_Platform.git
+cd Pulse-Engine_Market_Intelligence_Platform
 
 # 2. Create a virtual environment
 # Python 3.11–3.14 are all supported
@@ -161,9 +161,11 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-All 14 tests should pass. The suite covers:
+All tests should pass. The suite covers:
 - Core function invariants (RSI range, signal score range, sentiment range)
 - Pipeline smoke tests (`analyse_asset`, `run_full_scan`)
+- Edge case coverage for scoring, sentiment, deduplication, and contradictions
+- Storage round-trip, retention policy, dry-run scan, and backtest evaluation
 
 The tests are intentionally minimal — they verify the pipeline runs and outputs are sane,
 not that every key and value matches exactly. See `tests/MAINTENANCE.md` for guidance on

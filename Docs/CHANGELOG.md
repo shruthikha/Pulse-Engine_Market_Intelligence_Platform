@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.2.2] - 2026-04-12
+### "Dashboard Stability + Security + Test Expansion"
+
+### Added
+- `tests/test_logic_coverage.py` — edge case coverage for signal scoring, sentiment, deduplication, and contradiction detection
+- `tests/test_storage_and_scan.py` — storage round-trip, retention policy, dry-run scan, and synthetic backtest tests
+- Signal score legend added to the sidebar for quick reference
+- Loading spinner shown in the dashboard while live analysis is running
+
+### Changed
+- Pinned runtime dependencies tightened after `pip audit` security review; no vulnerable packages remain in `requirements.txt`
+- Dashboard cache invalidation logic reduced to avoid unnecessary reruns on stale data
+- Dashboard stale-refresh handling tightened — refresh now triggers only when data is genuinely outdated
+- Signal legend copy in sidebar clarified for readability
+
+### Technical
+- Total test count increased from 14 to 37
+- All test files use package-based imports consistent with the v0.2.1 modular restructure
+
+---
+
 ## [0.2.1] - 2026-04-07
 ### "Modular Package Restructure + Asset Organisation"
 > Partial progress toward v0.3. Arbitrary ticker support, local installer, and open issue backlog (#10, #11, #12) remain outstanding before v0.3.0 is reached.
